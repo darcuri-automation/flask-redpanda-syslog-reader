@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syslog Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Syslog Viewer</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Host</th>
+                <th>Process</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody id="syslog-table-body">
+            <!-- Log entries will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Function to fetch syslogs from the Flask API
+        async function fetchSyslogs() {
+            try {
+                const response = await fetch('/api/syslogs');
+                const logs = await response.json();
+                renderSyslogs(logs);
+            } catch (error) {
+                console.error('Error fetching syslogs:', error);
+            }
+        }
+
+        // Function to render syslogs into the table
+        function renderSyslogs(logs) {
+            const tableBody = document.getElementById('syslog-table-body');
+            tableBody.innerHTML = ''; // Clear the table
+
+            logs.forEach(log => {
+                const row = document.createElement('tr');
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = log.timestamp;
+                row.appendChild(dateCell);
+
+                const hostCell = document.createElement('td');
+                hostCell.textContent = log.host;
+                row.appendChild(hostCell);
+
+                const processCell = document.createElement('td');
+                processCell.textContent = log.process;
+                row.appendChild(processCell);
+
+                const messageCell = document.createElement('td');
+                messageCell.textContent = log.message;
+                row.appendChild(messageCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Fetch syslogs every 5 seconds
+        setInterval(fetchSyslogs, 5000);
+
+        // Fetch syslogs initially when the page loads
+        fetchSyslogs();
+    </script>
+
+</body>
+</html>
